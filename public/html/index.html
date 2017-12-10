@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js canvas - geometry - cube</title>
+		<meta charset="utf-8">
+		<link rel="stylesheet" href="css/360-photo-to-video.css">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	</head>
+	<body>
+		<script src="js/three/three.min.js"></script>
+		<script src="js/three/Projector.js"></script>
+		<script src="js/three/CanvasRenderer.js"></script>
+		<script src="js/three/OrbitControls.js"></script>
+		<script src="js/CCapture.all.min.js"></script>
+		<script src="js/three/dat.gui.min.js"></script>
+		<script src="js/ffmpeg.asm.js"></script>
+
+		<div id="controlBox">
+			<info>
+				Capture Videos of 360 Photographs
+			</info>
+			<label class="custom-file-upload">
+				Select 360 Image
+    		<input id="getval" type="file"/>
+			</label>
+			<div id="controlGui">
+			</div>
+			<button id="captureButton">
+				Start Capture
+			</button>
+		</div>
+		<script>
+			var capturer;
+			var container;
+			var camera, scene, renderer;
+			var sphereMesh;
+			var autoRotationQuaternion;
+			var index;
+			materials = [];
+			var windowHalfX = window.innerWidth / 2;
+			var windowHalfY = window.innerHeight / 2;
+			var capturing;
+			var controls;
+			var rotationValue = 0.008;
+			var oneRotation = false;
+
+
+			init();
+			animate();
+
+			function readURL() {
+				var file = document.getElementById("getval").files[0];
+				var reader = new FileReader();
+				reader.onloadend = function(){
+					tex = new THREE.TextureLoader().load(reader.result);
+					sphereMesh.material.map = tex;
+				}
+				if(file){
+					reader.readAsDataURL(file);
+				}else{
+				}
+
+			}
+			function init() {
+
+				container = document.createElement( 'div' );
+				document.body.appendChild( container );
+
+				controlBox = document.getElementById("controlBox")
+				fileUpload = document.getElementById('getval');
+				fileUpload.addEventListener('change', readURL, true);
+
+				scene = new THREE.Scene();
+
+				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 1000 );
+
+
+				controls = new THREE.OrbitControls(camera, container);
+				controls.target.set(0,40,0)
+
+				camera.position.x = 2.44;
+				camera.position.y = 43.21;
+				camera.position.z = 6.61;
+
+				camera.rotation.x = -0.45095196967665085
+				camera.rotation.y = 0.32167828175815766
+				camera.rotation.z = 0.15191416835838922
+
+				geometry = new THREE.SphereGeometry(100, 32, 32);
+
+
+				var sphereMaterial = new THREE.MeshBasicMaterial({
+					map: new THREE.TextureLoader().load('img/photospheres/sadgirl1.jpg')
+				});
+				sphereMaterial.transparent= true;
+				sphereMesh = new THREE.Mesh(geometry,sphereMaterial);
+				sphereMesh.position.set(0,0,0);
+				sphereMesh.name = "mainsphere";
+				sphereMesh.material.side = THREE.DoubleSide
+
+
+				//set the first sphere mesh
+				scene.add(sphereMesh);
+
+				//set auto rotation of current sphere
+				autoRotationQuaternion = new THREE.Quaternion()
+				.setFromEuler(new THREE.Euler(
+					0,
+					0.008,
+					0,
+					'XYZ'
+				));
+
+				renderer = new THREE.WebGLRenderer();
+				renderer.setClearColor( 0xf0f0f0 );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( 1280, 700 );
+				container.appendChild( renderer.domElement );
+				//stats = new Stats();
+				//container.appendChild( stats.dom );
+				//window.addEventListener( 'resize', onWindowResize, false );
+
+				capturing = false;
+				u_format = 'webm';
+				var params = {
+					speed: 0.008,
+					S_900x600: function () {
+						renderer.setSize( 900, 600 );
+					},
+					M_1200x900: function () {
+						renderer.setSize( 1200, 900 );
+					},
+					HD_1280x700: function () {
+						renderer.setSize( 1280, 700 );
+					},
+					"WebM": true,
+					"JPG": false,
+					"OneRotation": false
+				};
+
+				var gui = new dat.GUI();
+				controlGui = document.getElementById ("controlGui");
+				controlGui.appendChild(gui.domElement);
+				rotationValue = 0.008;
+				gui.add( params, 'speed', -0.04, 0.04 ).step( 0.001 ).name( 'Speed' ).onChange( function ( value ) {
+					rotationValue = value;
+					autoRotationQuaternion = new THREE.Quaternion()
+					.setFromEuler(new THREE.Euler(
+						0,
+						value,
+						0,
+						'XYZ'
+					));
+					render();
+				} );
+
+				sizeFolder = gui.addFolder('Size');
+				sizeFolder.add( params, 'HD_1280x700' );
+				sizeFolder.add( params, 'M_1200x900' );
+				sizeFolder.add( params, 'S_900x600' );
+
+				formatFolder = gui.addFolder('ExportFormat');
+				var ff1 = formatFolder.add( params, 'WebM' ).listen();
+				var ff2 = formatFolder.add( params, 'JPG' ).listen();
+				ff1.onChange(function(value){
+					u_format = "webm"
+        	params["WebM"] = true;
+        	params["JPG"] = false;
+				});
+
+				ff2.onChange(function(value){
+					u_format = "jpg";
+        	params["WebM"] = false;
+        	params["JPG"] = true;
+				});
+
+				var r = gui.add( params, 'OneRotation').listen();
+				r.onChange(function(value){
+					if(oneRotation){
+						params["OneRotation"] = false;
+						oneRotation = false;
+					} else {
+						params["OneRotation"] = true;
+						oneRotation = true;
+					}
+				});
+				gui.open();
+
+				// captureButton = document.createElement('BUTTON');
+				// var start = document.createTextNode('start capture');
+				// captureButton.appendChild(start);
+				// captureButton.id = "captureButton";
+				// captureButton.onclick = startCapture;
+				// controlBox.appendChild(captureButton);
+				captureButton = document.getElementById("captureButton");
+				captureButton.onclick = startCapture;
+			}
+
+
+
+			function onWindowResize() {
+				windowHalfX = window.innerWidth / 2;
+				windowHalfY = window.innerHeight / 2;
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize( window.innerWidth, window.innerHeight );
+			}
+
+			function startCapture() {
+			if (capturing) {
+				capturer.stop();
+				capturer.save();
+				capturing = false;
+				captureButton.innerHTML = "Start Capture";
+
+
+			} else{
+
+				capturing = true;
+				if (oneRotation) {
+					var u_timelimit = (2*Math.PI)/(rotationValue*30);
+				} else {
+					var u_timelimit = 59;
+				}
+				console.log(u_timelimit);
+				capturer = new CCapture( {
+								verbose: false,
+								display: true,
+								framerate: 30,
+								quality: 99,
+								format: u_format,
+								workersPath: '../../',
+								timeLimit: u_timelimit,
+								frameLimit: 0,
+								autoSaveTime: 0,
+								onProgress: function( p ) { console.log( ( p * 100 ) + '%' )}
+							} );
+							capturer.start();
+							captureButton.innerHTML = "Stop Capture";
+
+				}
+			}
+
+			function animate() {
+				if (capturing) {
+					requestAnimationFrame (animate);
+				} else {
+					setTimeout( function() {
+						requestAnimationFrame( animate );
+					}, 1000 / 30 );
+				}
+
+				//stats.begin();
+				render();
+				//stats.end();
+			}
+
+			function render() {
+
+				controls.update();
+				sphereMesh.quaternion.multiplyQuaternions(autoRotationQuaternion, sphereMesh.quaternion);
+
+				renderer.render( scene, camera );
+				if( capturing ) {
+					capturer.capture( renderer.domElement );
+				}
+			}
+
+		</script>
+	</body>
+</html>

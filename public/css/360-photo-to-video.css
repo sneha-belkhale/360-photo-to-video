@@ -1,0 +1,98 @@
+body {
+font-family: "Lucida Grande",sans-serif;
+background-color: white;
+margin: 0px;
+overflow: hidden;
+}
+
+info {
+  position: absolute;
+  top: 12px;
+  /* width: 100%; */
+  /* text-align: center; */
+  background-color: black;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 10px;
+
+}
+#controlBox {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  color: white;
+  width: 245px;
+  z-index: 0;
+
+}
+
+input[type="file"] {
+    display: none;
+}
+.custom-file-upload {
+    font-family: "Lucida Grande",sans-serif;
+    font-size: 11px;
+    display: inline-block;
+    cursor: pointer;
+    height: 22px;
+    width: 100%;
+    text-align: center;
+    padding-top: 10px;
+    background-color: #30a1d6;
+    margin-bottom: 2px;
+    margin-top: 70px;
+}
+#captureButton {
+  border-radius: 0px;
+  border:none;
+  font-size: 11px;
+  outline : 0px;
+  color:white;
+  width:100%;
+  height: 30px;
+  position:relative;
+  background-color: #30a1d6;
+  margin-top: 22px;
+}
+.custom-file-upload:hover {
+  cursor : pointer;
+  background-color: #e71e5e;
+}
+#captureButton:hover {
+  cursor : pointer;
+  background-color: #e71e5e;
+}
+div .dg.a {
+  margin-right: 0px;
+}
+/*#nextbutton {
+    position: absolute;
+    top: 50%;
+    left: 90%;
+    padding: 0;
+    border: none;
+    background: none;
+    font-size: 20px;
+    color: gray;
+    font: Arial;
+    font-style: bold;
+    z-index: 2;
+    cursor : pointer;
+    outline : 0px;
+}
+#backbutton {
+    position: absolute;
+    top: 50%;
+    right: 90%;
+    padding: 0;
+    border: none;
+    background: none;
+    font-size: 20px;
+    color: gray;
+    font: Arial;
+    font-style: bold;
+    z-index: 2;
+    cursor : pointer;
+    outline : 0px;
+    display: none;
+}*/
