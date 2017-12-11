@@ -16,15 +16,18 @@
 		<script src="js/ffmpeg.asm.js"></script>
 
 		<div id="controlBox">
-			<info>
+			<mtitle>
 				Capture Videos of 360 Photographs
-			</info>
-			<label class="custom-file-upload">
-				Select 360 Image
-    		<input id="getval" type="file"/>
-			</label>
+			</mtitle>
+			<div id="info">
+				Convert your 360 photos into video formats for easy sharing on media platforms. Made with three.js and CCapture.js
+			</div>
 			<div id="controlGui">
 			</div>
+			<label class="custom-file-upload">
+				Select 360 Image
+				<input id="getval" type="file"/>
+			</label>
 			<button id="captureButton">
 				Start Capture
 			</button>
@@ -233,7 +236,7 @@
 			}
 
 			var now,delta,then = Date.now();
-			var interval = 1000/33;
+			var interval = 1000/30;
 
 			function animate() {
 				requestAnimationFrame (animate);
