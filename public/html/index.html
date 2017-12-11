@@ -186,12 +186,6 @@
 				});
 				gui.open();
 
-				// captureButton = document.createElement('BUTTON');
-				// var start = document.createTextNode('start capture');
-				// captureButton.appendChild(start);
-				// captureButton.id = "captureButton";
-				// captureButton.onclick = startCapture;
-				// controlBox.appendChild(captureButton);
 				captureButton = document.getElementById("captureButton");
 				captureButton.onclick = startCapture;
 			}
@@ -212,17 +206,14 @@
 				capturer.save();
 				capturing = false;
 				captureButton.innerHTML = "Start Capture";
-
-
+				captureButton.style.backgroundColor = "#30a1d6";
 			} else{
-
 				capturing = true;
 				if (oneRotation) {
 					var u_timelimit = (2*Math.PI)/(rotationValue*30);
 				} else {
 					var u_timelimit = 59;
 				}
-				console.log(u_timelimit);
 				capturer = new CCapture( {
 								verbose: false,
 								display: true,
@@ -237,19 +228,22 @@
 							} );
 							capturer.start();
 							captureButton.innerHTML = "Stop Capture";
-
+							captureButton.style.backgroundColor = "#e71e5e";
 				}
 			}
 
-			function animate() {
-				if (capturing) {
-					requestAnimationFrame (animate);
-				} else {
-					setTimeout( function() {
-						requestAnimationFrame( animate );
-					}, 1000 / 30 );
-				}
+			var now,delta,then = Date.now();
+			var interval = 1000/33;
 
+			function animate() {
+				requestAnimationFrame (animate);
+				now = Date.now();
+				delta = now - then;
+				//update sphere position at 30 frames per second
+				if (delta > interval) {
+					sphereMesh.quaternion.multiplyQuaternions(autoRotationQuaternion, sphereMesh.quaternion);
+					then = now - (delta % interval);
+				}
 				//stats.begin();
 				render();
 				//stats.end();
@@ -258,8 +252,6 @@
 			function render() {
 
 				controls.update();
-				sphereMesh.quaternion.multiplyQuaternions(autoRotationQuaternion, sphereMesh.quaternion);
-
 				renderer.render( scene, camera );
 				if( capturing ) {
 					capturer.capture( renderer.domElement );
