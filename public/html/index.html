@@ -32,6 +32,11 @@
 				Start Capture
 			</button>
 		</div>
+
+		<div id="canvasDiv">
+			<canvas id="canvas">
+			</canvas>
+		</div>
 		<script>
 			var capturer;
 			var container;
@@ -46,6 +51,7 @@
 			var controls;
 			var rotationValue = 0.008;
 			var oneRotation = false;
+			var canvas, canvasDiv;
 
 
 			init();
@@ -114,11 +120,15 @@
 					'XYZ'
 				));
 
-				renderer = new THREE.WebGLRenderer();
+				canvasElement = document.getElementById("canvas");
+				renderer = new THREE.WebGLRenderer({canvas:canvasElement});
 				renderer.setClearColor( 0xf0f0f0 );
 				renderer.setPixelRatio( window.devicePixelRatio );
-				renderer.setSize( 1280, 700 );
-				container.appendChild( renderer.domElement );
+				renderer.setSize( 1280/window.devicePixelRatio, 720/window.devicePixelRatio, true );
+				canvasDiv = document.getElementById("canvasDiv");
+				canvasDiv.style.width = 1280/window.devicePixelRatio + 'px'
+        //
+				// container.appendChild( renderer.domElement );
 				//stats = new Stats();
 				//container.appendChild( stats.dom );
 				//window.addEventListener( 'resize', onWindowResize, false );
@@ -128,13 +138,22 @@
 				var params = {
 					speed: 0.008,
 					S_900x600: function () {
-						renderer.setSize( 900, 600 );
+						renderer.setSize( 900/window.devicePixelRatio, 600/window.devicePixelRatio, true );
+						canvasDiv.style.width = 900/window.devicePixelRatio + 'px'
+						camera.aspect = 900/600;
+						camera.updateProjectionMatrix();
 					},
 					M_1200x900: function () {
-						renderer.setSize( 1200, 900 );
+						renderer.setSize( 1200/window.devicePixelRatio, 900/window.devicePixelRatio );
+						canvasDiv.style.width = 1200/window.devicePixelRatio + 'px'
+						camera.aspect = 1200/900;
+						camera.updateProjectionMatrix();
 					},
 					HD_1280x700: function () {
-						renderer.setSize( 1280, 700 );
+						renderer.setSize( 1280/window.devicePixelRatio, 720/window.devicePixelRatio );
+						canvasDiv.style.width = 1280/window.devicePixelRatio + 'px'
+						camera.aspect = 1280/720;
+						camera.updateProjectionMatrix();
 					},
 					"WebM": true,
 					"JPG": false,
@@ -191,16 +210,6 @@
 
 				captureButton = document.getElementById("captureButton");
 				captureButton.onclick = startCapture;
-			}
-
-
-
-			function onWindowResize() {
-				windowHalfX = window.innerWidth / 2;
-				windowHalfY = window.innerHeight / 2;
-				camera.aspect = window.innerWidth / window.innerHeight;
-				camera.updateProjectionMatrix();
-				renderer.setSize( window.innerWidth, window.innerHeight );
 			}
 
 			function startCapture() {

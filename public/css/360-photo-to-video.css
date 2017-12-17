@@ -26,6 +26,10 @@ mtitle {
   top: 59px;
   margin-bottom: 61px;
 }
+#canvasDiv {
+  margin: auto;
+  /*margin-top: 32px;*/
+}
 #controlBox {
   position: absolute;
   top: 20px;
