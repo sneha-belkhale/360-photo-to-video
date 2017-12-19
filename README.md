@@ -1,5 +1,7 @@
 # 360-photo-to-video
-Convert your 360 photography into rotational videos, for simple sharing on media platforms that do not yet have support for 360 photos.
+Web tool to convert your 360 photography into rotational videos, for simple sharing on media platforms that do not yet have support for 360 photos.
+
+Check it out @ http://codercat.club/360-photo-to-video
 
 Made with three.js and CCapture.js
 
